@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.hkhs.hmms</groupId>
+    <artifactId>wsear_parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>HMMS_netwiser_WSEAR</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <name>HMMS_netwiser_WSEAR</name>
+  <url>http://maven.apache.org</url>
+  
+  <packaging>ear</packaging>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>ch.qos.logback</groupId>
+          <artifactId>logback-classic</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-logging</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-spring-boot-starter-jaxws</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator</artifactId>
+    </dependency>
+    <!-- http utils-->
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpcore</artifactId>
+    </dependency>
+    <!--slf4j and logback-->
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <!-- <scope>provided</scope> -->
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.json-lib</groupId>
+      <artifactId>json-lib</artifactId>
+      <classifier>jdk13</classifier>
+    </dependency>
+    <!-- wars -->
+    <dependency>
+      <groupId>com.hkhs.hmms</groupId>
+      <artifactId>haa_enhancement</artifactId>
+      <version>1.0-SNAPSHOT</version>
+      <type>war</type>
+    </dependency>
+  </dependencies>
+  <build>
+    <finalName>HMMS_netwiser_WSEAR</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-ear-plugin</artifactId>
+        <configuration>
+          <modules>
+            <webModule>
+              <groupId>com.hkhs.hmms</groupId>
+              <artifactId>haa_enhancement</artifactId>
+              <bundleFileName>HMMS_netwiser_haa_enhancement_WS.war</bundleFileName>
+            </webModule>
+          </modules>
+          
+          <defaultLibBundleDir>lib/</defaultLibBundleDir>
+          <skinnyWars>true</skinnyWars>
+          <skinnyModules>true</skinnyModules>
+          <filtering>true</filtering>
+          <escapeString>\</escapeString>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
