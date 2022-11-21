@@ -5,10 +5,19 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.hkhs.hmms.haa.util.DataUtil;
 import com.hkhs.hmms.haa.util.DBConnection;
 
+@Service
 public class ReportBean {
+
+	@Autowired
+	private DataSource dataSource;
 
 	private Connection conn = null;
 	private PreparedStatement psmt = null;
@@ -76,7 +85,7 @@ public class ReportBean {
 			reportId = params[2];
 		}
 		try {
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			DBConnection.beginTransaction(conn);
 
 			reportKeyName = getReportKeyName();
@@ -140,11 +149,11 @@ public class ReportBean {
 
 	private String saveReportKey(String reportId, String loginId) throws SQLException {
 		String rptKey = "";
-//		psmt = conn.prepareStatement(SQL_MIS_RPT_KEY_QUERY);
-//		rs = psmt.executeQuery();
-//		if(rs!=null&&rs.next()){
-//			rptKey = rs.getString(1).trim();
-//		}
+		// psmt = conn.prepareStatement(SQL_MIS_RPT_KEY_QUERY);
+		// rs = psmt.executeQuery();
+		// if(rs!=null&&rs.next()){
+		// rptKey = rs.getString(1).trim();
+		// }
 		rptKey = "" + System.currentTimeMillis();
 		psmt = conn.prepareStatement(SQL_MIS_RPT_KEY_INSERT_NEW);
 		psmt.setString(1, reportId);

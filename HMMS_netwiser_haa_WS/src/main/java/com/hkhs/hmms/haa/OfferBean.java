@@ -9,6 +9,11 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.hkhs.hmms.haa.BallotBean.FLAT_STATUS;
 import com.hkhs.hmms.haa.entity.BallotClass;
 import com.hkhs.hmms.haa.entity.FlatClass;
@@ -22,7 +27,11 @@ import com.hkhs.hmms.haa.util.DataUtil;
 /**
  * @author TuWei 14/2/2019
  */
+@Service
 public class OfferBean {
+
+	@Autowired
+	private DataSource dataSource;
 
 	private final static String SQL_QUERY_OFFER_RESULT = "select RA_NO,RA_PROP_REF,RA_PROP_REF_2ND,RA_NAME,RA_TOTAL_PERSON,"
 			+ "hsk_haa_ra.get_application_categories(RA_NO) as categories," + "RO_PROP_REF as NEW_FLAT,"
@@ -69,7 +78,7 @@ public class OfferBean {
 	public String queryOfferList(String prjCode, int rbNo) {
 		List<OfferEntityClass> offerList = new ArrayList<OfferEntityClass>(64);
 		try {
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			String sql = SQL_QUERY_OFFER_RESULT;
 			psmt = conn.prepareStatement(sql);
 			psmt.setInt(1, rbNo);
@@ -111,7 +120,7 @@ public class OfferBean {
 	public BallotClass getBallotDetailBy(String rbNo) {
 		BallotClass entity = new BallotClass();
 		try {
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			String sql = SQL_QUERY_BALLOT_DETAIL;
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, rbNo);
@@ -173,11 +182,11 @@ public class OfferBean {
 					.toString();
 		}
 		StringBuffer resultStr = new StringBuffer();
-		
+
 		if (DataUtil.isNotEmpty(raRemark)) {
 			try {
 				String sqlUpdApp = SQL_UPDATE_APPLICATION;
-				conn = DBConnection.getConnection();
+				conn = DBConnection.getConnection(dataSource);
 				psmt = conn.prepareStatement(sqlUpdApp);
 				psmt.setString(1, raRemark);
 				psmt.setString(2, adminName);
@@ -193,9 +202,9 @@ public class OfferBean {
 				DBConnection.closeConnection(conn);
 			}
 		}
-		
+
 		try {
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			DBConnection.beginTransaction(conn);
 			String sql = SQL_OFFER_ACCEPT;
 			DBConnection.beginTransaction(conn);
@@ -246,7 +255,7 @@ public class OfferBean {
 		if (DataUtil.isNotEmpty(raRemark)) {
 			try {
 				String sqlUpdApp = SQL_UPDATE_APPLICATION;
-				conn = DBConnection.getConnection();
+				conn = DBConnection.getConnection(dataSource);
 				psmt = conn.prepareStatement(sqlUpdApp);
 				psmt.setString(1, raRemark);
 				psmt.setString(2, adminName);
@@ -264,10 +273,10 @@ public class OfferBean {
 		}
 		StringBuffer resultStr = new StringBuffer();
 		try {
-			conn = DBConnection.getConnection();
-//			DBConnection.beginTransaction(conn);
-		    String sql = SQL_OFFER_REJECT;
-			
+			conn = DBConnection.getConnection(dataSource);
+			// DBConnection.beginTransaction(conn);
+			String sql = SQL_OFFER_REJECT;
+
 			proc = conn.prepareCall(sql);
 			String tmpResult = null;
 			for (int i = 0; i < ranos.length; i++) {
@@ -279,14 +288,14 @@ public class OfferBean {
 				proc.setString(6, rjDate);
 				proc.registerOutParameter(7, Types.VARCHAR);
 				proc.execute();
-//				DBConnection.commit(conn);
+				// DBConnection.commit(conn);
 				tmpResult = proc.getString(7);
 				if (tmpResult != null) {
 					System.out.println(tmpResult);
 					resultStr.append(tmpResult);
 				}
 			}
-			
+
 			if (DataUtil.isEmpty(resultStr.toString())) {
 				return ResultBuilder.buildSuccessResult().toString();
 			}
@@ -313,7 +322,7 @@ public class OfferBean {
 		}
 		FlatClass resultBean = new FlatClass();
 		try {
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, propNo);
 			psmt.setString(2, prjCode);
@@ -353,7 +362,7 @@ public class OfferBean {
 		}
 		String resultProc = "";
 		try {
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			proc = conn.prepareCall(sql);
 			proc.setString(1, rano);
 			proc.setString(2, propNo);

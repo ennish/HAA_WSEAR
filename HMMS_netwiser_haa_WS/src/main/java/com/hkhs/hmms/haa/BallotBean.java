@@ -23,6 +23,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.util.Set;
 
 import com.hkhs.hmms.haa.ApplicationBean.APP_STATUS;
@@ -42,7 +48,11 @@ import com.hkhs.hmms.haa.util.DataUtil;
 /**
  * @author TuWei 14/2/2019
  */
+@Service
 public class BallotBean {
+
+	@Autowired
+	private DataSource dataSource;
 
 	private final static String SQL_GET_HAA_FILE_PATH = "select HSK_HAA_RA.get_download_path(?) from dual";
 
@@ -92,30 +102,36 @@ public class BallotBean {
 			+ "	 or property_refno in (select rfl_prop_ref from hs_haa.hst_haa_redev_flat_list where rfl_prj_code = ?)) "
 			+ " <`cond`> "
 			+ "  and property_refno not in (select FLS_PROP_REF from hst_haa_ra_flat_sequence  "
-			+ "	 where FLS_PRJ_CODE = ? AND FLS_STATUS NOT IN ('" + FLAT_STATUS.READY_OFFER + "', '" + FLAT_STATUS.REJECT_OFFER + "'))  order by PROPERTY_REFNO ";
+			+ "	 where FLS_PRJ_CODE = ? AND FLS_STATUS NOT IN ('" + FLAT_STATUS.READY_OFFER + "', '"
+			+ FLAT_STATUS.REJECT_OFFER + "'))  order by PROPERTY_REFNO ";
 
 	/**
 	 * Flat Management
 	 * 
 	 * Query flat list
 	 */
-//	private final static String SQL_QUERY_RA_FLAT_FOR_BALLOT = "select PROPERTY_REFNO,IFA,FLATTYPE,FACING,ESTATES,UDF,ELDERLY_WING,NVL(FLS_STATUS,'"
-//			+ FLAT_STATUS.READY_OFFER + "') from HST_HAA_REDEV_FLAT_VIEW,HST_HAA_RA_FLAT_SEQUENCE "
-//			+ " where PROPERTY_REFNO = FLS_PROP_REF and <`cond`>";
+	// private final static String SQL_QUERY_RA_FLAT_FOR_BALLOT = "select
+	// PROPERTY_REFNO,IFA,FLATTYPE,FACING,ESTATES,UDF,ELDERLY_WING,NVL(FLS_STATUS,'"
+	// + FLAT_STATUS.READY_OFFER + "') from
+	// HST_HAA_REDEV_FLAT_VIEW,HST_HAA_RA_FLAT_SEQUENCE "
+	// + " where PROPERTY_REFNO = FLS_PROP_REF and <`cond`>";
 
 	/**
 	 * cond1 View prjCode refNo type cond2 sequence status
 	 * 
 	 * cond.append("and ( regexp_like (PROPERTY_REFNO,'"+queryByPrj+"') ")
- 			.append(" OR PROPERTY_REFNO IN (SELECT RFL_PROP_REF FROM HST_HAA_REDEV_FLAT_LIST WHERE RFL_PRJ_CODE = '" + queryObj.getProject() + "')) ");
-		
+	 * .append(" OR PROPERTY_REFNO IN (SELECT RFL_PROP_REF FROM
+	 * HST_HAA_REDEV_FLAT_LIST WHERE RFL_PRJ_CODE = '" + queryObj.getProject() +
+	 * "')) ");
+	 * 
 	 */
-	  final static String SQL_QUERY_FLAT_FOR_MANAMEGENT = "select distinct(PROPERTY_REFNO),IFA,FLATTYPE,FACING,ESTATES,UDF,ELDERLY_WING,NVL(FLS_STATUS,'READY_OFFER'),hsk_haa_ra.get_status_desp('HAA_FLAT_STATUS',NVL(FLS_STATUS,'READY_OFFER')) "
+	final static String SQL_QUERY_FLAT_FOR_MANAMEGENT = "select distinct(PROPERTY_REFNO),IFA,FLATTYPE,FACING,ESTATES,UDF,ELDERLY_WING,NVL(FLS_STATUS,'READY_OFFER'),hsk_haa_ra.get_status_desp('HAA_FLAT_STATUS',NVL(FLS_STATUS,'READY_OFFER')) "
 			+ " from HST_HAA_REDEV_FLAT_VIEW, "
 			+ "	(select FLS_PROP_REF, FLS_STATUS , FLS_RB_NO "
 			+ "		from HST_HAA_RA_FLAT_SEQUENCE where FLS_PRJ_CODE =  ? AND FLS_RB_NO IN( "
 			+ "  		SELECT FLS_RS_NO FROM (SELECT FLS_PRJ_CODE, FLS_PROP_REF , MAX(FLS_RB_NO) FLS_RS_NO "
-			+ " 		FROM HST_HAA_RA_FLAT_SEQUENCE GROUP BY FLS_PRJ_CODE,FLS_PROP_REF) A) and FLS_STATUS <> '" +  FLAT_STATUS.REJECT_OFFER + "' ) B "
+			+ " 		FROM HST_HAA_RA_FLAT_SEQUENCE GROUP BY FLS_PRJ_CODE,FLS_PROP_REF) A) and FLS_STATUS <> '"
+			+ FLAT_STATUS.REJECT_OFFER + "' ) B "
 			+ " where PROPERTY_REFNO = FLS_PROP_REF(+) AND "
 			+ " 	( regexp_like (PROPERTY_REFNO,(SELECT RP_PROP_RANGE FROM HST_HAA_REDEV_PROJECT WHERE RP_PRJ_CODE = ?))"
 			+ " 	OR PROPERTY_REFNO IN (SELECT RFL_PROP_REF FROM HST_HAA_REDEV_FLAT_LIST WHERE RFL_PRJ_CODE = ?)) <`cond`> ORDER BY PROPERTY_REFNO";
@@ -181,6 +197,7 @@ public class BallotBean {
 	 */
 	public static enum HAA_PATH {
 		DOWNLOAD("DOWNLOAD"), UPLOAD("UPLOAD"), LOG("LOG");
+
 		private String val;
 
 		HAA_PATH(String value) {
@@ -244,7 +261,7 @@ public class BallotBean {
 		String resultStr = "";
 		String[] countStr = null;
 		try {
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, prjcode);
 			rs = psmt.executeQuery();
@@ -290,7 +307,7 @@ public class BallotBean {
 		}
 		List<BallotCountClass> resultList = new ArrayList<BallotCountClass>();
 		try {
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, prjcode);
 			psmt.setString(2, prjcode);
@@ -323,7 +340,7 @@ public class BallotBean {
 	 */
 	public String generateQueryCondition(String projectCode) throws SQLException {
 		String sql = SQL_GENERATE_PROPREFNO_FOR_FLAT_QUERY;
-		conn = DBConnection.getConnection();
+		conn = DBConnection.getConnection(dataSource);
 		String range = "";
 		psmt = conn.prepareStatement(sql);
 		psmt.setString(1, projectCode);
@@ -346,12 +363,12 @@ public class BallotBean {
 		if (queryObj == null || DataUtil.isEmpty(queryObj.getProject())) {
 			return ResultBuilder.buildResult("project code can not be null!").setErrorCode(Result.ERROR_CODE_INVALID)
 					.toString();
-		} 
+		}
 		String sql = SQL_QUERY_FLAT_FOR_MANAMEGENT;
 
 		// condition of FLAT_SEQUENCE
 		StringBuilder cond = new StringBuilder();
- 		if (DataUtil.isNotEmpty(queryObj.getStatus())) {
+		if (DataUtil.isNotEmpty(queryObj.getStatus())) {
 			if (FLAT_STATUS.REJECT_OFFER.name().equals(queryObj.getStatus())) {
 				cond.append(" and FLS_STATUS IS NULL ");
 			} else if (FLAT_STATUS.READY_OFFER.name().equals(queryObj.getStatus())) {
@@ -371,7 +388,7 @@ public class BallotBean {
 
 		List<FlatClass> resultList = new ArrayList<FlatClass>(64);
 		try {
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, queryObj.getProject());
 			psmt.setString(2, queryObj.getProject());
@@ -414,7 +431,7 @@ public class BallotBean {
 		String logPath = "";
 		try {
 			String sql = SQL_GET_HAA_FILE_PATH;
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, HAA_PATH.UPLOAD.getValue());
 			rs = psmt.executeQuery();
@@ -524,7 +541,7 @@ public class BallotBean {
 		 * Query by last ballot
 		 */
 		try {
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			psmt = conn.prepareStatement(sql);
 			rs = psmt.executeQuery();
 			while (rs.next()) {
@@ -548,7 +565,7 @@ public class BallotBean {
 			DBConnection.closePreparedStatement(psmt);
 			DBConnection.closeConnection(conn);
 		}
-		
+
 		if (appNoList.isEmpty() || flatPropList.isEmpty()) {
 			return ResultBuilder.buildResult("Invalid file:applications or flats for ballot not found!")
 					.setErrorCode(Result.ERROR_CODE_INVALID).toString();
@@ -558,7 +575,7 @@ public class BallotBean {
 			return ResultBuilder.buildResult("Invalid file:applications or flats imported not match with data in db.")
 					.setErrorCode(Result.ERROR_CODE_INVALID).toString();
 		}
-		
+
 		boolean flagNotExists = false;
 		for (int i = 0; i < appNoList.size(); i++) {
 			if (!appNos.containsKey(appNoList.get(i))) {
@@ -599,7 +616,7 @@ public class BallotBean {
 		if (!destFlatFile.getParentFile().exists()) {
 			destFlatFile.getParentFile().mkdirs();
 		}
-		
+
 		if (!destFlatFile.exists()) {
 			try {
 				destFlatFile.createNewFile();
@@ -634,7 +651,7 @@ public class BallotBean {
 		List<String> failRaNoList = new ArrayList<String>(64);
 		List<String> failPropRefList = new ArrayList<String>(64);
 		try {
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 
 			int i = 0;
 			Set<String> appNoKeys = appNos.keySet();
@@ -832,7 +849,7 @@ public class BallotBean {
 	public String checkOutStanding(String prjcode) {
 		String sql = SQL_CHECK_OUTSTANDING_BALLOT;
 		int result = 0;
-		conn = DBConnection.getConnection();
+		conn = DBConnection.getConnection(dataSource);
 		try {
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, prjcode);
@@ -867,7 +884,7 @@ public class BallotBean {
 		String basePath = "";
 		try {
 			String sql = SQL_GET_HAA_FILE_PATH;
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, "");
 			rs = psmt.executeQuery();
@@ -929,7 +946,7 @@ public class BallotBean {
 		List<FlatClass> list = new ArrayList<FlatClass>();
 		FlatClass flat = new FlatClass();
 		try {
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, prjCode);
 
@@ -984,7 +1001,7 @@ public class BallotBean {
 
 		String sql = SQL_GET_HAA_FILE_PATH;
 		try {
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, HAA_PATH.DOWNLOAD.name());
 			rs = psmt.executeQuery();
@@ -1009,7 +1026,8 @@ public class BallotBean {
 			sql = SQL_QUERY_RA_APPLICATION_FOR_BALLOT2;
 			// Query condition
 			StringBuilder cond = new StringBuilder(" 1=1 ");
-//			cond.append(" AND RA_PRJ_CODE = '").append(queryObjApp.getProject()).append("'");
+			// cond.append(" AND RA_PRJ_CODE =
+			// '").append(queryObjApp.getProject()).append("'");
 			if (DataUtil.isNotEmpty(queryObjApp.getCategories())) {
 				cond.append(" AND RC_CATEGORY in (");
 				for (int i = 0; i < queryObjApp.getCategories().length; i++) {
@@ -1061,7 +1079,7 @@ public class BallotBean {
 
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, queryObjFlat.getProject());
- 			psmt.setString(2, queryObjFlat.getProject());
+			psmt.setString(2, queryObjFlat.getProject());
 			psmt.setString(3, queryObjFlat.getProject());
 
 			rs = psmt.executeQuery();
@@ -1112,7 +1130,7 @@ public class BallotBean {
 			for (String rano : listRanos) {
 				sbuilder = new StringBuilder();
 
-//				char[] FILLING = new char[186];
+				// char[] FILLING = new char[186];
 
 				char[] FILLING = new char[SIZE_OF_BALLOT - SIZE_OF_APPNO - SIZE_OF_FAM_CAT];
 				Arrays.fill(FILLING, ' ');
@@ -1123,11 +1141,11 @@ public class BallotBean {
 						.append(FILE_CONTENT_LINE_BREAK);
 				fileWriter.write(sbuilder.toString());
 			}
-			
+
 			Iterator<Entry<String, FlatInfo>> iter = mapRfnos.entrySet().iterator();
-			while(iter.hasNext()) {
+			while (iter.hasNext()) {
 				sbuilder = new StringBuilder();
-				Entry<String,FlatInfo> entry = iter.next();
+				Entry<String, FlatInfo> entry = iter.next();
 				String rfno = entry.getKey();
 				char[] FILLING = new char[SIZE_OF_BALLOT - SIZE_OF_APPNO - SIZE_OF_FAM_CAT];
 				Arrays.fill(FILLING, ' ');
@@ -1158,7 +1176,7 @@ public class BallotBean {
 		// Save Ballot log,Ballot flat log,Ballot app log,Ballot flat cat log,Ballot app
 		// cat log
 		try {
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			DBConnection.beginTransaction(conn);
 			int rbNo = 0;
 			sql = SQL_GET_BALLOT_SEQ;
@@ -1217,7 +1235,7 @@ public class BallotBean {
 				psmt.setInt(6, mapRfnos.get(key).getMinAlloc());
 				psmt.setInt(7, mapRfnos.get(key).getMaxAlloc());
 				psmt.setString(8, mapRfnos.get(key).getFlatSize());// flat size
-				psmt.setDouble(9,mapRfnos.get(key).getIfa());
+				psmt.setDouble(9, mapRfnos.get(key).getIfa());
 				psmt.addBatch();
 				if ((tempCount + 1) % 100 == 0) {
 					psmt.executeBatch();
@@ -1266,7 +1284,7 @@ public class BallotBean {
 	public String queryBallotList(String prjCode) {
 		List<BallotEntity> resultList = new ArrayList<BallotEntity>();
 		try {
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			String sql = SQL_QUERY_BALLOT_LIST;
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, prjCode);

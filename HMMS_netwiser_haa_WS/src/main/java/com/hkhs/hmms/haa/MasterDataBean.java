@@ -5,13 +5,22 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 //import com.hkhs.hmms.haa.entity.ChargeItemClass;
 import com.hkhs.hmms.haa.util.DBConnection;
 import com.hkhs.hmms.haa.util.DataUtil;
 
 import net.sf.json.JSONObject;
 
+@Service
 public class MasterDataBean {
+
+	@Autowired
+	private DataSource dataSource;
 
 	private Connection conn = null;
 	private PreparedStatement psmt = null;
@@ -27,19 +36,19 @@ public class MasterDataBean {
 
 	private final static String SQL_QUERY_HAA_REFUSE_REASON = "select LOVD_VALUE_CHAR,LOVD_VALUE_DES_ENG FROM HST_HMMS_LIST_OF_VALUE_DETAIL"
 			+ " WHERE LOVD_LOVH_CODE = 'HAA_REFUSE_REASON' ORDER BY LOVD_DISP_SEQ_NO DESC";
-	
+
 	private final static String SQL_QUERY_HAA_REDEV_PROJECT = "SELECT RP_PRJ_CODE, RP_DESCRIPTION FROM  HST_HAA_REDEV_PROJECT ORDER BY  rp_update_date desc, rp_create_date desc";
 
 	private final static String SQL_QUERY_HAA_APPLICATION_CATEGORY = "SELECT RDC_PRJ_CODE,RDC_CATEGORY,RDC_DESCRIPTION FROM HST_HAA_REDEV_CATEGORY WHERE RDC_PRJ_CODE = ? ORDER BY RDC_CREATE_DATE";
 
 	private final static String SQL_QUERY_HAA_APPLICATION_FLAT_SIZE = " SELECT RDS_PRJ_CODE, RDS_SIZE, RDS_DESCRIPTION, RDS_MIN_ALLOC, RDS_MAX_ALLOC "
 			+ "	  FROM  HST_HAA_REDEV_FLAT_SIZE " + "	WHERE RDS_PRJ_CODE=? " + "	  ORDER BY RDS_DISPLAY_SEQ ";
- 
+
 	public void init() {
 
 		if (!bInit) {
 			bInit = true;
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 		}
 
 	}
@@ -62,7 +71,7 @@ public class MasterDataBean {
 			Boolean isFirst = true;
 			StringBuilder buff = new StringBuilder();
 			String sql = SQL_QUERY_HAA_APPLICATION_FLAT_SIZE;
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			psmt = conn.prepareStatement(sql);
 			if (DataUtil.isEmpty(prjCode)) {
 				return "";
@@ -108,16 +117,17 @@ public class MasterDataBean {
 			Boolean isFirst = true;
 			StringBuilder buff = new StringBuilder();
 			String sql = SQL_QUERY_HAA_APPLICATION_CATEGORY;
-//			StringBuilder cond = new StringBuilder(" 1=1 ");
-//			if (DataUtil.isNotEmpty(prjCode)) {
-//				cond.append(" AND A.RDC_PRJ_CODE = '").append(prjCode.toUpperCase()).append("'");
-//			}
-//			if (DataUtil.isNotEmpty(raNO)) {
-//				cond.append(" AND B.RC_RA_NO = '").append(raNO).append("'");
-//			}
-//			sql = DataUtil.strReplaceAll(sql, "<`cond`>", cond.toString());
+			// StringBuilder cond = new StringBuilder(" 1=1 ");
+			// if (DataUtil.isNotEmpty(prjCode)) {
+			// cond.append(" AND A.RDC_PRJ_CODE =
+			// '").append(prjCode.toUpperCase()).append("'");
+			// }
+			// if (DataUtil.isNotEmpty(raNO)) {
+			// cond.append(" AND B.RC_RA_NO = '").append(raNO).append("'");
+			// }
+			// sql = DataUtil.strReplaceAll(sql, "<`cond`>", cond.toString());
 
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			psmt = conn.prepareStatement(sql);
 			if (prjCode == null) {
 				return "";
@@ -161,7 +171,7 @@ public class MasterDataBean {
 			Boolean isFirst = true;
 			StringBuilder buff = new StringBuilder();
 			String sql = SQL_QUERY_HAA_FLAT_STATUS;
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			psmt = conn.prepareStatement(sql);
 			rs = psmt.executeQuery();
 			buff.append("[");
@@ -191,14 +201,14 @@ public class MasterDataBean {
 		}
 		return DataUtil.escXml(xml);
 	}
-	
+
 	public String getRefuseReasons() {
 		String xml = "";
 		try {
 			Boolean isFirst = true;
 			StringBuilder buff = new StringBuilder();
 			String sql = SQL_QUERY_HAA_REFUSE_REASON;
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			psmt = conn.prepareStatement(sql);
 			rs = psmt.executeQuery();
 			buff.append("[");
@@ -228,14 +238,14 @@ public class MasterDataBean {
 		}
 		return DataUtil.escXml(xml);
 	}
-	
+
 	public String getApplicationStatusList(String parameter) {
 		String xml = "";
 		try {
 			Boolean isFirst = true;
 			StringBuilder buff = new StringBuilder();
 			String sql = SQL_QUERY_HAA_STATUS;
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			psmt = conn.prepareStatement(sql);
 			rs = psmt.executeQuery();
 			buff.append("[");
@@ -278,7 +288,7 @@ public class MasterDataBean {
 			Boolean isFirst = true;
 			StringBuilder buff = new StringBuilder();
 			String sql = SQL_QUERY_HAA_STATUS;
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			psmt = conn.prepareStatement(sql);
 			rs = psmt.executeQuery();
 			buff.append("[");
@@ -318,7 +328,7 @@ public class MasterDataBean {
 			// generate condition
 			// String cond = "";
 
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			psmt = conn.prepareStatement(sql);
 			rs = psmt.executeQuery();
 			buff.append("[");

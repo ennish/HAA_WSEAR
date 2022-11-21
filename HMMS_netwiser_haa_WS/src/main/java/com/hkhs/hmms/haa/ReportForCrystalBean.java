@@ -9,6 +9,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -17,6 +19,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.hkhs.hmms.haa.entity.BallotClass;
 import com.hkhs.hmms.haa.entity.Result;
@@ -26,10 +30,14 @@ import com.hkhs.hmms.haa.util.DBConnection;
 /**
  * @author TuWei 17/08/2021
  */
+@Service
 public class ReportForCrystalBean {
 
+	@Autowired
+	private DataSource dataSource;
+
 	private Log logger = LogFactory.getLog(ReportForCrystalBean.class);
-	
+
 	private Connection conn = null;
 	private PreparedStatement psmt = null;
 	private ResultSet rs = null;
@@ -46,7 +54,7 @@ public class ReportForCrystalBean {
 	public BallotClass getBallotDetailBy(Connection conn, String rbNo) throws SQLException {
 		BallotClass entity = new BallotClass();
 		try {
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			String sql = SQL_QUERY_BALLOT_DETAIL;
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, rbNo);
@@ -79,7 +87,7 @@ public class ReportForCrystalBean {
 		String seedNo = "";
 		// Get crystal generation URL and reportId
 		try {
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			BallotClass ballot = getBallotDetailBy(conn, rbNo);
 			if (ballot == null) {
 				return ResultBuilder.buildResult(Result.ERROR_CODE_NOT_EXIST, "Ballot not found");
@@ -113,16 +121,18 @@ public class ReportForCrystalBean {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			return ResultBuilder.buildServerFailResult(e.getMessage());
-			
+
 		}
 		return ResultBuilder.buildSuccessResult(generationUrl);
 	}
 
-	private void doGetRequestForReport(String generationUrl,String ReportID, String Param1, String Param2, String Param3, String Param4,
+	private void doGetRequestForReport(String generationUrl, String ReportID, String Param1, String Param2,
+			String Param3, String Param4,
 			String fileName) throws Exception {
 		URI uri = null;
 		try {
-			uri = new URIBuilder(generationUrl).addParameter("ReportID", ReportID).addParameter("Param1", Param1).addParameter("Param2", Param2)
+			uri = new URIBuilder(generationUrl).addParameter("ReportID", ReportID).addParameter("Param1", Param1)
+					.addParameter("Param2", Param2)
 					.addParameter("Param3", Param3).addParameter("Param4", Param4).addParameter("FileName", fileName)
 					.build();
 		} catch (URISyntaxException e1) {
@@ -133,11 +143,12 @@ public class ReportForCrystalBean {
 		try {
 			HttpGet httpGet = new HttpGet(uri);
 			CloseableHttpResponse response = null;
-			
+
 			try {
 				response = httpclient.execute(httpGet);
-				if(response.getStatusLine().getStatusCode() != org.apache.http.HttpStatus.SC_OK) {
-					logger.warn(String.format("Request for (%s) return a status code: %d ",uri.getRawQuery(),response.getStatusLine().getStatusCode()));
+				if (response.getStatusLine().getStatusCode() != org.apache.http.HttpStatus.SC_OK) {
+					logger.warn(String.format("Request for (%s) return a status code: %d ", uri.getRawQuery(),
+							response.getStatusLine().getStatusCode()));
 				}
 				System.out.println(response.getStatusLine());
 				logger.info(uri);
@@ -158,7 +169,7 @@ public class ReportForCrystalBean {
 			}
 		}
 	}
- 
+
 	public static void main(String[] args) {
 		ReportForCrystalBean rptBean = new ReportForCrystalBean();
 		try {
@@ -168,12 +179,12 @@ public class ReportForCrystalBean {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public Result checkReportGenerated(String fileName) {
 		// Get crystal generation URL and reportId
 		String rptPath = "";
 		try {
-			conn = DBConnection.getConnection();
+			conn = DBConnection.getConnection(dataSource);
 			psmt = conn.prepareStatement(
 					"select LOVD_VALUE_CHAR from  HST_HMMS_LIST_OF_VALUE_DETAIL where lovd_lovh_code = 'HAA2_CRYSTAL_REPORT_GENERATION_PATH'");
 			rs = psmt.executeQuery();

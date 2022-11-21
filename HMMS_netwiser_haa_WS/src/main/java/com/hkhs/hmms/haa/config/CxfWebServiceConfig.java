@@ -14,7 +14,6 @@ import com.hkhs.hmms.haa.api.HaaWS;
 import com.hkhs.hmms.haa.api.MainWS;
 import com.hkhs.hmms.haa.api.impl.HaaWSImpl;
 import com.hkhs.hmms.haa.api.impl.MainWSImpl;
- 
 
 /**
  * cxf配置类
@@ -44,7 +43,8 @@ public class CxfWebServiceConfig {
     public MainWS mainService() {
         return new MainWSImpl();
     }
-/**
+
+    /**
      * 申明业务处理类 当然也可以直接 在实现类上标注 @Service
      * 
      */
@@ -52,6 +52,7 @@ public class CxfWebServiceConfig {
     public HaaWS haaService() {
         return new HaaWSImpl();
     }
+
     /*
      * 非必要项
      */
@@ -65,18 +66,17 @@ public class CxfWebServiceConfig {
      * 发布endpoint
      */
     @Bean
-    public Endpoint endpoint(MainWS mainService) {
+    public Endpoint mainEndpoint(MainWS mainService) {
         EndpointImpl endpoint = new EndpointImpl(springBus(), mainService);
         endpoint.publish("/mainWS");// 发布地址
         return endpoint;
     }
 
-
     /*
      * 发布endpoint
      */
     @Bean
-    public Endpoint endpoint(HaaWS haaWS) {
+    public Endpoint haaEndpoint(HaaWS haaWS) {
         EndpointImpl endpoint = new EndpointImpl(springBus(), haaWS);
         endpoint.publish("/haaWS");// 发布地址
         return endpoint;
