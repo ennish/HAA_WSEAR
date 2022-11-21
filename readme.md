@@ -16,4 +16,4 @@ Add it as a dependency in the HMMS_netwiser_WSEAR and set its type to war.
 </dependency>
 ```
 
-[Refenece ear plugin](<http://people.apache.org/~epunzalan/maven-ear-plugin/usage.html>)
+[Reference ear plugin](<http://people.apache.org/~epunzalan/maven-ear-plugin/usage.html>)
