@@ -8,7 +8,18 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import org.springframework.beans.factory.annotation.Value;
+
 public class DBConnection {
+
+	@Value("${spring.datasource.driverClassName}")
+	private String driverClass;
+	@Value("${spring.datasource.jdbcUrl}")
+	private String jdbcUrl;
+	@Value("${spring.datasource.username}")
+	private String username;
+	@Value("${spring.datasource.password}")
+	private String password;
 
 	public static Connection getConnection(DataSource dataSource) {
 		Connection connection = null;
@@ -16,6 +27,7 @@ public class DBConnection {
 			connection = dataSource.getConnection();
 		} catch (SQLException e) {
 			e.printStackTrace();
+
 		}
 		return connection;
 	}
