@@ -9,8 +9,6 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,11 +25,7 @@ import com.hkhs.hmms.haa.util.DataUtil;
 /**
  * @author TuWei 14/2/2019
  */
-@Service
 public class OfferBean {
-
-	@Autowired
-	private DataSource dataSource;
 
 	private final static String SQL_QUERY_OFFER_RESULT = "select RA_NO,RA_PROP_REF,RA_PROP_REF_2ND,RA_NAME,RA_TOTAL_PERSON,"
 			+ "hsk_haa_ra.get_application_categories(RA_NO) as categories," + "RO_PROP_REF as NEW_FLAT,"
@@ -78,7 +72,7 @@ public class OfferBean {
 	public String queryOfferList(String prjCode, int rbNo) {
 		List<OfferEntityClass> offerList = new ArrayList<OfferEntityClass>(64);
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			String sql = SQL_QUERY_OFFER_RESULT;
 			psmt = conn.prepareStatement(sql);
 			psmt.setInt(1, rbNo);
@@ -120,7 +114,7 @@ public class OfferBean {
 	public BallotClass getBallotDetailBy(String rbNo) {
 		BallotClass entity = new BallotClass();
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			String sql = SQL_QUERY_BALLOT_DETAIL;
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, rbNo);
@@ -186,7 +180,7 @@ public class OfferBean {
 		if (DataUtil.isNotEmpty(raRemark)) {
 			try {
 				String sqlUpdApp = SQL_UPDATE_APPLICATION;
-				conn = DBConnection.getConnection(dataSource);
+				conn = DBConnection.getConnection();
 				psmt = conn.prepareStatement(sqlUpdApp);
 				psmt.setString(1, raRemark);
 				psmt.setString(2, adminName);
@@ -204,7 +198,7 @@ public class OfferBean {
 		}
 
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			DBConnection.beginTransaction(conn);
 			String sql = SQL_OFFER_ACCEPT;
 			DBConnection.beginTransaction(conn);
@@ -255,7 +249,7 @@ public class OfferBean {
 		if (DataUtil.isNotEmpty(raRemark)) {
 			try {
 				String sqlUpdApp = SQL_UPDATE_APPLICATION;
-				conn = DBConnection.getConnection(dataSource);
+				conn = DBConnection.getConnection();
 				psmt = conn.prepareStatement(sqlUpdApp);
 				psmt.setString(1, raRemark);
 				psmt.setString(2, adminName);
@@ -273,7 +267,7 @@ public class OfferBean {
 		}
 		StringBuffer resultStr = new StringBuffer();
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			// DBConnection.beginTransaction(conn);
 			String sql = SQL_OFFER_REJECT;
 
@@ -322,7 +316,7 @@ public class OfferBean {
 		}
 		FlatClass resultBean = new FlatClass();
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, propNo);
 			psmt.setString(2, prjCode);
@@ -362,7 +356,7 @@ public class OfferBean {
 		}
 		String resultProc = "";
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			proc = conn.prepareCall(sql);
 			proc.setString(1, rano);
 			proc.setString(2, propNo);

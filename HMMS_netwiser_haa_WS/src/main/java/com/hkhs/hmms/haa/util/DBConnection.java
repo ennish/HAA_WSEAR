@@ -1,33 +1,71 @@
 package com.hkhs.hmms.haa.util;
 
+import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Properties;
 
 import javax.sql.DataSource;
+import javax.naming.Context;
+import javax.naming.InitialContext;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.apache.commons.lang.StringUtils;
 
 public class DBConnection {
 
-	@Value("${spring.datasource.driverClassName}")
-	private String driverClass;
-	@Value("${spring.datasource.jdbcUrl}")
-	private String jdbcUrl;
-	@Value("${spring.datasource.username}")
-	private String username;
-	@Value("${spring.datasource.password}")
-	private String password;
-
-	public static Connection getConnection(DataSource dataSource) {
+	public static Connection getConnection() {
 		Connection connection = null;
+		Properties Config = new Properties();
 		try {
-			connection = dataSource.getConnection();
+			Config.load(DBConnection.class.getClassLoader().getResourceAsStream("jdbc.properties"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		// Configuration Config = new Configuration("/jdbc.properties");
+		// Config.initConfig("jdbc.properties");
+		String jndi = Config.getProperty("jdbc.jndi");
+		String profile = System.getProperty("spring.profiles.active");
+
+		if (StringUtils.isNotBlank(jndi) && StringUtils.startsWithIgnoreCase(profile, "prd")) {
+			try {
+				/*
+				 * Properties props = new Properties();
+				 * props.put(Context.INITIAL_CONTEXT_FACTORY,
+				 * "org.jboss.naming.remote.client.InitialContextFactory");
+				 * props.put(Context.PROVIDER_URL, "remote://localhost:4447");
+				 * //props.put(Context.SECURITY_PRINCIPAL, "admin");
+				 * //props.put(Context.SECURITY_CREDENTIALS, "password");
+				 */
+				Context ctx = new InitialContext();
+				Object datasourceRef = ctx.lookup(jndi);
+				DataSource ds = (DataSource) datasourceRef;
+
+				connection = ds.getConnection();
+			} catch (Exception e) {
+				System.out.println("fail to get connection by jndi " + e.getMessage());
+				e.printStackTrace();
+			}
+			return connection;
+		}
+
+		try {
+			System.out.println("-----Use jdbc for test------");
+			String driverString = Config.getProperty("jdbc.class");
+			String dburl = Config.getProperty("jdbc.url");
+			String username = Config.getProperty("jdbc.username");
+			String password = Config.getProperty("jdbc.password");
+
+			Class.forName(driverString);
+			connection = DriverManager.getConnection(dburl, username, password);
+
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 		} catch (SQLException e) {
 			e.printStackTrace();
-
 		}
 		return connection;
 	}

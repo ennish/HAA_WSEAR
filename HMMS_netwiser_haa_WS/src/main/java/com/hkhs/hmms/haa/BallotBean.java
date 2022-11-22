@@ -24,11 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.sql.DataSource;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.Set;
 
 import com.hkhs.hmms.haa.ApplicationBean.APP_STATUS;
@@ -48,11 +43,7 @@ import com.hkhs.hmms.haa.util.DataUtil;
 /**
  * @author TuWei 14/2/2019
  */
-@Service
 public class BallotBean {
-
-	@Autowired
-	private DataSource dataSource;
 
 	private final static String SQL_GET_HAA_FILE_PATH = "select HSK_HAA_RA.get_download_path(?) from dual";
 
@@ -261,7 +252,7 @@ public class BallotBean {
 		String resultStr = "";
 		String[] countStr = null;
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, prjcode);
 			rs = psmt.executeQuery();
@@ -307,7 +298,7 @@ public class BallotBean {
 		}
 		List<BallotCountClass> resultList = new ArrayList<BallotCountClass>();
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, prjcode);
 			psmt.setString(2, prjcode);
@@ -340,7 +331,7 @@ public class BallotBean {
 	 */
 	public String generateQueryCondition(String projectCode) throws SQLException {
 		String sql = SQL_GENERATE_PROPREFNO_FOR_FLAT_QUERY;
-		conn = DBConnection.getConnection(dataSource);
+		conn = DBConnection.getConnection();
 		String range = "";
 		psmt = conn.prepareStatement(sql);
 		psmt.setString(1, projectCode);
@@ -388,7 +379,7 @@ public class BallotBean {
 
 		List<FlatClass> resultList = new ArrayList<FlatClass>(64);
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, queryObj.getProject());
 			psmt.setString(2, queryObj.getProject());
@@ -431,7 +422,7 @@ public class BallotBean {
 		String logPath = "";
 		try {
 			String sql = SQL_GET_HAA_FILE_PATH;
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, HAA_PATH.UPLOAD.getValue());
 			rs = psmt.executeQuery();
@@ -541,7 +532,7 @@ public class BallotBean {
 		 * Query by last ballot
 		 */
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			psmt = conn.prepareStatement(sql);
 			rs = psmt.executeQuery();
 			while (rs.next()) {
@@ -651,7 +642,7 @@ public class BallotBean {
 		List<String> failRaNoList = new ArrayList<String>(64);
 		List<String> failPropRefList = new ArrayList<String>(64);
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 
 			int i = 0;
 			Set<String> appNoKeys = appNos.keySet();
@@ -849,7 +840,7 @@ public class BallotBean {
 	public String checkOutStanding(String prjcode) {
 		String sql = SQL_CHECK_OUTSTANDING_BALLOT;
 		int result = 0;
-		conn = DBConnection.getConnection(dataSource);
+		conn = DBConnection.getConnection();
 		try {
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, prjcode);
@@ -884,7 +875,7 @@ public class BallotBean {
 		String basePath = "";
 		try {
 			String sql = SQL_GET_HAA_FILE_PATH;
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, "");
 			rs = psmt.executeQuery();
@@ -946,7 +937,7 @@ public class BallotBean {
 		List<FlatClass> list = new ArrayList<FlatClass>();
 		FlatClass flat = new FlatClass();
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, prjCode);
 
@@ -1001,7 +992,7 @@ public class BallotBean {
 
 		String sql = SQL_GET_HAA_FILE_PATH;
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, HAA_PATH.DOWNLOAD.name());
 			rs = psmt.executeQuery();
@@ -1176,7 +1167,7 @@ public class BallotBean {
 		// Save Ballot log,Ballot flat log,Ballot app log,Ballot flat cat log,Ballot app
 		// cat log
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			DBConnection.beginTransaction(conn);
 			int rbNo = 0;
 			sql = SQL_GET_BALLOT_SEQ;
@@ -1284,7 +1275,7 @@ public class BallotBean {
 	public String queryBallotList(String prjCode) {
 		List<BallotEntity> resultList = new ArrayList<BallotEntity>();
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			String sql = SQL_QUERY_BALLOT_LIST;
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, prjCode);

@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * cxf服务发布示例
+ * 
  * @author oKong
  *
  */
@@ -18,4 +19,4 @@ public class HAApp {
         SpringApplication.run(HAApp.class, args);
         logger.info("spirng-boot-cxf-service-chapter34启动!");
     }
-}    
+}

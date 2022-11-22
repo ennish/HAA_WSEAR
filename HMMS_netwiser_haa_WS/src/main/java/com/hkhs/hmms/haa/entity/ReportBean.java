@@ -5,19 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javax.sql.DataSource;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.hkhs.hmms.haa.util.DataUtil;
 import com.hkhs.hmms.haa.util.DBConnection;
 
-@Service
 public class ReportBean {
-
-	@Autowired
-	private DataSource dataSource;
 
 	private Connection conn = null;
 	private PreparedStatement psmt = null;
@@ -85,7 +76,7 @@ public class ReportBean {
 			reportId = params[2];
 		}
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			DBConnection.beginTransaction(conn);
 
 			reportKeyName = getReportKeyName();

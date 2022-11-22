@@ -11,11 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.sql.DataSource;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.hkhs.hmms.haa.entity.ApplicationCategoryClass;
 import com.hkhs.hmms.haa.entity.ApplicationClass;
 import com.hkhs.hmms.haa.entity.ApplicationClass.CGLS_FLAG;
@@ -32,10 +27,7 @@ import net.sf.json.JSONObject;
 /**
  * @author TuWei 14/2/2019
  */
-@Service
 public class ApplicationBean {
-	@Autowired
-	private DataSource dataSource;
 
 	private final static String SQL_QUERY_PROPERTY_INFO = "select HSK_HAA_RA.get_property_info(?, ?) from dual";
 
@@ -143,7 +135,7 @@ public class ApplicationBean {
 		String sql = SQL_QUERY_PROPERTY_INFO;
 		String sqlQueryExists = SQL_QUERY_HAA_REDEV_APPLICATION_EXISTS;
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			psmt = conn.prepareStatement(sqlQueryExists);
 			psmt.setString(1, tenancyRef);
 			psmt.setString(2, propRef);
@@ -211,7 +203,7 @@ public class ApplicationBean {
 		String sql = SQL_QUERY_HOUSEHOLD_PERSON;
 
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, tenancyRef);
@@ -273,7 +265,7 @@ public class ApplicationBean {
 		String sql = SQL_QUERY_OFFER_HISTORY;
 
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, raNo);
@@ -362,7 +354,7 @@ public class ApplicationBean {
 		try {
 			try {
 				String sql = SQL_INSERT_REDEV_APPLICATION;
-				conn = DBConnection.getConnection(dataSource);
+				conn = DBConnection.getConnection();
 				DBConnection.beginTransaction(conn);
 				HaaNoBean hb = new HaaNoBean(conn);
 				// this method must be in transaction
@@ -573,7 +565,7 @@ public class ApplicationBean {
 		int total = 0;
 		Boolean isFirst = true;
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			psmt = conn.prepareStatement(sql);
 			psmt.setInt(1, pageSize * pageIndex);
 			psmt.setInt(2, pageSize * (pageIndex - 1));
@@ -640,7 +632,7 @@ public class ApplicationBean {
 		sql = DataUtil.strReplaceAll(sql, "<`cond`>", cond.toString());
 		List<ApplicationPersonClass> resultList = new ArrayList<ApplicationPersonClass>(64);
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			psmt = conn.prepareStatement(sql);
 			rs = psmt.executeQuery();
 			while (rs.next()) {
@@ -680,7 +672,7 @@ public class ApplicationBean {
 		}
 		sql = DataUtil.strReplaceAll(sql, "<`cond`>", cond.toString());
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 
 			psmt = conn.prepareStatement(sql);
 			rs = psmt.executeQuery();
@@ -842,7 +834,7 @@ public class ApplicationBean {
 		// If status is not READY_OFFER,only comment is allowed to update.
 		if (!APP_STATUS.READY_OFFER.name().equals(application.getRaStatus())) {
 			int chgResult = 0;
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			try {
 				String sql = SQL_UPDATE_COMMENT;
 				psmt = conn.prepareStatement(sql);
@@ -861,7 +853,7 @@ public class ApplicationBean {
 			}
 			return ResultBuilder.buildSuccessResult().setResult(chgResult).toString();
 		}
-		conn = DBConnection.getConnection(dataSource);
+		conn = DBConnection.getConnection();
 		DBConnection.beginTransaction(conn);
 		try {
 			// update flat if it's cgls
@@ -965,7 +957,7 @@ public class ApplicationBean {
 		String sql = SQL_QUERY_HAA_REDEV_FLAT_CAPACITY_LIST;
 		Map<String, int[]> capacityMap = new HashMap<String, int[]>(16);
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, prjCode);
 			rs = psmt.executeQuery();
@@ -994,7 +986,7 @@ public class ApplicationBean {
 		String sql = SQL_QUERY_HAA_REDEV_FLAT_CAPACITY;
 		int result[] = new int[2];
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, prjCode);
 			psmt.setString(2, size);
@@ -1033,7 +1025,7 @@ public class ApplicationBean {
 
 		if (DataUtil.isNotEmpty(raRemark)) {
 			try {
-				conn = DBConnection.getConnection(dataSource);
+				conn = DBConnection.getConnection();
 				psmt = conn.prepareStatement(sqlUpdApp);
 				psmt.setString(1, raRemark);
 				psmt.setString(2, ranoArray[0]);
@@ -1048,7 +1040,7 @@ public class ApplicationBean {
 			}
 		}
 
-		conn = DBConnection.getConnection(dataSource);
+		conn = DBConnection.getConnection();
 		String[] result = new String[ranoArray.length];
 		try {
 			psmt = conn.prepareStatement(sql);

@@ -9,8 +9,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javax.sql.DataSource;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -30,11 +28,7 @@ import com.hkhs.hmms.haa.util.DBConnection;
 /**
  * @author TuWei 17/08/2021
  */
-@Service
 public class ReportForCrystalBean {
-
-	@Autowired
-	private DataSource dataSource;
 
 	private Log logger = LogFactory.getLog(ReportForCrystalBean.class);
 
@@ -54,7 +48,7 @@ public class ReportForCrystalBean {
 	public BallotClass getBallotDetailBy(Connection conn, String rbNo) throws SQLException {
 		BallotClass entity = new BallotClass();
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			String sql = SQL_QUERY_BALLOT_DETAIL;
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, rbNo);
@@ -87,7 +81,7 @@ public class ReportForCrystalBean {
 		String seedNo = "";
 		// Get crystal generation URL and reportId
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			BallotClass ballot = getBallotDetailBy(conn, rbNo);
 			if (ballot == null) {
 				return ResultBuilder.buildResult(Result.ERROR_CODE_NOT_EXIST, "Ballot not found");
@@ -184,7 +178,7 @@ public class ReportForCrystalBean {
 		// Get crystal generation URL and reportId
 		String rptPath = "";
 		try {
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			psmt = conn.prepareStatement(
 					"select LOVD_VALUE_CHAR from  HST_HMMS_LIST_OF_VALUE_DETAIL where lovd_lovh_code = 'HAA2_CRYSTAL_REPORT_GENERATION_PATH'");
 			rs = psmt.executeQuery();

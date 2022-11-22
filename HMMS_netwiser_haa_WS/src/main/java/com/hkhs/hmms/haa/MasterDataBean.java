@@ -5,12 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-//import com.hkhs.hmms.haa.entity.ChargeItemClass;
 import com.hkhs.hmms.haa.util.DBConnection;
 import com.hkhs.hmms.haa.util.DataUtil;
 
@@ -18,9 +15,6 @@ import net.sf.json.JSONObject;
 
 @Service
 public class MasterDataBean {
-
-	@Autowired
-	private DataSource dataSource;
 
 	private Connection conn = null;
 	private PreparedStatement psmt = null;
@@ -48,7 +42,7 @@ public class MasterDataBean {
 
 		if (!bInit) {
 			bInit = true;
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 		}
 
 	}
@@ -71,7 +65,7 @@ public class MasterDataBean {
 			Boolean isFirst = true;
 			StringBuilder buff = new StringBuilder();
 			String sql = SQL_QUERY_HAA_APPLICATION_FLAT_SIZE;
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			psmt = conn.prepareStatement(sql);
 			if (DataUtil.isEmpty(prjCode)) {
 				return "";
@@ -127,7 +121,7 @@ public class MasterDataBean {
 			// }
 			// sql = DataUtil.strReplaceAll(sql, "<`cond`>", cond.toString());
 
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			psmt = conn.prepareStatement(sql);
 			if (prjCode == null) {
 				return "";
@@ -171,7 +165,7 @@ public class MasterDataBean {
 			Boolean isFirst = true;
 			StringBuilder buff = new StringBuilder();
 			String sql = SQL_QUERY_HAA_FLAT_STATUS;
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			psmt = conn.prepareStatement(sql);
 			rs = psmt.executeQuery();
 			buff.append("[");
@@ -208,7 +202,7 @@ public class MasterDataBean {
 			Boolean isFirst = true;
 			StringBuilder buff = new StringBuilder();
 			String sql = SQL_QUERY_HAA_REFUSE_REASON;
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			psmt = conn.prepareStatement(sql);
 			rs = psmt.executeQuery();
 			buff.append("[");
@@ -245,7 +239,7 @@ public class MasterDataBean {
 			Boolean isFirst = true;
 			StringBuilder buff = new StringBuilder();
 			String sql = SQL_QUERY_HAA_STATUS;
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			psmt = conn.prepareStatement(sql);
 			rs = psmt.executeQuery();
 			buff.append("[");
@@ -288,7 +282,7 @@ public class MasterDataBean {
 			Boolean isFirst = true;
 			StringBuilder buff = new StringBuilder();
 			String sql = SQL_QUERY_HAA_STATUS;
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			psmt = conn.prepareStatement(sql);
 			rs = psmt.executeQuery();
 			buff.append("[");
@@ -328,7 +322,7 @@ public class MasterDataBean {
 			// generate condition
 			// String cond = "";
 
-			conn = DBConnection.getConnection(dataSource);
+			conn = DBConnection.getConnection();
 			psmt = conn.prepareStatement(sql);
 			rs = psmt.executeQuery();
 			buff.append("[");
